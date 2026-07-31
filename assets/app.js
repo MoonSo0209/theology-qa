@@ -113,6 +113,17 @@ function renderResults(asked, d, isMock) {
                 </div>
                 <p style="margin:0;font-family:var(--serif);font-size:14px;line-height:1.6;color:var(--cat)">${esc(t.summary)}</p>
                 <p style="margin:0;font-size:14.5px;line-height:1.9;color:var(--ink-70)">${esc(t.body)}</p>
+                ${t.plain ? `
+                <div style="margin-top:3px;background:var(--cat-soft);border-radius:14px;padding:12px 14px;display:flex;flex-direction:column;gap:5px">
+                  <span style="font-size:10.5px;letter-spacing:.1em;font-weight:700;color:var(--cat)">쉽게 말하면</span>
+                  <p style="margin:0;font-size:13.5px;line-height:1.85;color:var(--ink-70)">${esc(t.plain)}</p>
+                </div>` : ""}
+                ${(t.terms && t.terms.length) ? `
+                <div style="display:flex;flex-direction:column;gap:5px;margin-top:3px;padding-top:9px;border-top:1px dotted var(--color-divider)">
+                  <span style="font-size:10.5px;letter-spacing:.1em;font-weight:700;color:var(--ink-40)">용어 풀이</span>
+                  ${t.terms.map(x => `
+                    <span style="font-size:12.5px;line-height:1.75;color:var(--ink-55)"><b style="font-family:var(--serif);font-weight:700;color:var(--cat)">${esc(x.term)}</b> — ${esc(x.meaning)}</span>`).join("")}
+                </div>` : ""}
               </div>
             </div>
           </div>`;

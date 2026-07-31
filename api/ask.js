@@ -65,9 +65,22 @@ function buildSchema(isDoctrine) {
           properties: {
             name: { type: "string", description: "제시된 신학자 이름 그대로" },
             summary: { type: "string", description: "그 신학자의 답을 한 문장으로 압축한 요지" },
-            body: { type: "string", description: "그 신학자의 관점에서 3~5문장으로 답변" }
+            body: { type: "string", description: "그 신학자의 관점에서 3~5문장으로 답변" },
+            plain: { type: "string", description: "위 답변을 신학 용어 없이 일상 언어로 풀어 쓴 해설. 2~3문장." },
+            terms: {
+              type: "array",
+              description: "위 답변에 나온 어려운 신학 용어와 뜻풀이. 없으면 빈 배열.",
+              items: {
+                type: "object",
+                properties: {
+                  term: { type: "string", description: "용어" },
+                  meaning: { type: "string", description: "그 용어의 뜻을 한 문장으로 쉽게" }
+                },
+                required: ["term", "meaning"]
+              }
+            }
           },
-          required: ["name", "summary", "body"]
+          required: ["name", "summary", "body", "plain", "terms"]
         }
       },
       verses: {
@@ -176,6 +189,21 @@ ${question}
 - 그 신학자가 실제로 주장한 내용과, 후대 교단이 그를 해석한 방식을 혼동하지 마십시오.
 - 역사적 신학자를 현대 교파의 입장과 동일시하지 마십시오.
 - 존댓말로, 질문자에게 직접 말하듯 쓰십시오.
+
+[쉬운 해설 규칙 — 중요]
+신학을 처음 접하는 사람도 읽을 수 있어야 합니다. 신학자별로 다음 두 가지를 반드시 채우십시오.
+
+1) plain — "쉽게 말하면"에 해당하는 해설
+   - 신학 용어를 쓰지 말고, 일상에서 쓰는 말로 2~3문장.
+   - body를 짧게 줄인 요약이 아니라, 어려운 개념을 풀어서 다시 설명한 것이어야 합니다.
+   - 중학생이 읽어도 무슨 말인지 알 수 있어야 합니다.
+
+2) terms — 용어 뜻풀이 (0~3개)
+   - body에 실제로 등장한 말 중, 설명 없이는 이해하기 어려운 것만 고르십시오.
+   - 예: 칭의, 선행은총, 신화(神化), 성도의 견인, 대죄, 이신칭의, 섭리, 코람 데오.
+   - 일반 신자에게 익숙한 말(믿음, 은혜, 기도, 회개, 사랑 등)은 넣지 마십시오.
+   - body에 어려운 용어가 없으면 빈 배열로 두십시오. 억지로 채우지 마십시오.
+   - 뜻풀이도 신학 용어로 설명하지 말고 쉬운 말로 한 문장.
 
 ${conclusionRule}
 
