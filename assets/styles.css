@@ -1,0 +1,68 @@
+:root {
+  --serif: "Gowun Batang", "Nanum Myeongjo", serif;
+  --sans: "Noto Sans KR", "Figtree", system-ui, sans-serif;
+
+  --color-bg: #f5ead8;
+  --color-surface: #fffdf7;
+  --color-text: #3a352f;
+  --color-divider: rgba(58,53,47,.12);
+  --soft: rgba(58,53,47,.06);
+  --ink-70: rgba(58,53,47,.72);
+  --ink-55: rgba(58,53,47,.55);
+  --ink-40: rgba(58,53,47,.4);
+  --c-worry: #6d7f52; --c-worry-tint: #eef4e2; --c-worry-soft: #f6f9ef;
+  --c-life:  #b3703f; --c-life-tint:  #fbeade; --c-life-soft:  #fdf3ec;
+  --c-doc:   #8a7350; --c-doc-tint:   #f2ece0; --c-doc-soft:   #f9f5ec;
+  --on-cat: #fffdf8;
+  --av-bg: #f0e7d5;
+  --shadow-soft: 0 1px 2px rgba(58,53,47,.05), 0 6px 18px rgba(58,53,47,.05);
+
+  /* 선택된 갈래 색 (JS가 갱신) */
+  --cat: var(--c-worry);
+  --cat-tint: var(--c-worry-tint);
+  --cat-soft: var(--c-worry-soft);
+}
+:root.dark {
+  --color-bg: #2f2b26;
+  --color-surface: #272420;
+  --color-text: #f6f1e7;
+  --color-divider: rgba(246,241,231,.18);
+  --soft: rgba(246,241,231,.08);
+  --ink-70: rgba(246,241,231,.78);
+  --ink-55: rgba(246,241,231,.62);
+  --ink-40: rgba(246,241,231,.46);
+  --c-worry: #c3d3a6; --c-worry-tint: #4b5340; --c-worry-soft: #464e3c;
+  --c-life:  #eeb083; --c-life-tint:  #5a4636; --c-life-soft:  #524032;
+  --c-doc:   #dfcba4; --c-doc-tint:   #544a3a; --c-doc-soft:   #4d4436;
+  --on-cat: #2e2a25;
+  --av-bg: #524a40;
+  --shadow-soft: 0 1px 2px rgba(0,0,0,.22), 0 6px 18px rgba(0,0,0,.18);
+}
+
+* { box-sizing: border-box; }
+html, body { margin: 0; background: var(--color-bg); color: var(--color-text); font-family: var(--sans); -webkit-font-smoothing: antialiased; }
+
+@keyframes riseIn { from { opacity: 0; transform: translateY(12px); } to { opacity: 1; transform: none; } }
+@keyframes fadeIn { from { opacity: 0; } to { opacity: 1; } }
+
+button { font: inherit; }
+.hover-soft:hover { background: var(--soft) !important; }
+.hover-op:hover { opacity: .85; }
+.pill-cat { transition: background .18s ease, border-color .18s ease; }
+.pill-cat:hover { border-color: var(--pc) !important; }
+.example-chip { transition: background .18s ease; }
+.example-chip:hover { background: var(--cat-tint) !important; }
+a { color: var(--c-life); }
+
+:focus-visible { outline: 2px solid var(--cat); outline-offset: 2px; border-radius: 6px; }
+
+.hidden { display: none !important; }
+
+@media (max-width: 720px) {
+  aside.rail { position: static !important; top: auto !important; }
+}
+
+/* 접근성: 모션 최소화 설정을 존중 */
+@media (prefers-reduced-motion: reduce) {
+  *, *::before, *::after { animation: none !important; scroll-behavior: auto !important; }
+}

@@ -1,0 +1,108 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>신학 문답 — 역사 속 신학자들에게 묻다</title>
+<meta name="description" content="고민 · 삶 · 교리, 세 갈래 중 하나를 고르고 질문하면 역사 속 신학자들이 각자의 자리에서 답합니다. 종합 결론과 참고 성경 구절, 비슷한 고민을 지나간 성경 인물까지 함께 보여 줍니다." />
+<meta name="theme-color" content="#f5ead8" media="(prefers-color-scheme: light)" />
+<meta name="theme-color" content="#2f2b26" media="(prefers-color-scheme: dark)" />
+
+<!-- Open Graph -->
+<meta property="og:type" content="website" />
+<meta property="og:title" content="신학 문답" />
+<meta property="og:description" content="질문 하나를 두고 역사 속 신학자들이 각자의 자리에서 답합니다." />
+<meta property="og:locale" content="ko_KR" />
+
+<link rel="icon" href="assets/favicon.svg" type="image/svg+xml" />
+<link rel="preconnect" href="https://fonts.googleapis.com" />
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Gowun+Batang:wght@400;700&family=Noto+Sans+KR:wght@400;500;700&display=swap" />
+<link rel="stylesheet" href="assets/styles.css" />
+</head>
+<body>
+<div style="min-height:100vh;background:var(--color-bg);color:var(--color-text);padding:clamp(20px,4vw,44px) clamp(16px,4vw,40px) 90px;font-family:var(--sans);line-height:1.7">
+  <div style="max-width:1220px;margin:0 auto;display:flex;flex-direction:column;gap:30px">
+
+    <!-- HEADER -->
+    <header style="display:flex;align-items:flex-end;justify-content:space-between;gap:24px;flex-wrap:wrap;border-bottom:1px solid var(--color-divider);padding-bottom:22px">
+      <div style="display:flex;align-items:center;gap:16px">
+        <svg viewBox="0 0 64 64" style="width:54px;height:54px;flex:none" aria-hidden="true">
+          <circle cx="32" cy="32" r="30" fill="var(--cat-tint)"></circle>
+          <circle cx="32" cy="32" r="21" fill="none" stroke="var(--cat)" stroke-width="1" opacity=".45"></circle>
+          <path d="M32 13 V51 M21 26 H43" fill="none" stroke="var(--cat)" stroke-width="3" stroke-linecap="round"></path>
+        </svg>
+        <div style="display:flex;flex-direction:column;gap:9px">
+          <span style="display:inline-flex;align-items:center;gap:7px;padding:4px 12px;border-radius:999px;font-size:11px;letter-spacing:.04em;font-weight:700;background:var(--c-life-tint);color:var(--c-life);width:fit-content">
+            <span style="width:5px;height:5px;border-radius:50%;background:currentColor;display:block"></span>프로토타입 · 예시 답변
+          </span>
+          <h1 style="margin:0;font-family:var(--serif);font-weight:700;font-size:clamp(27px,3.6vw,38px);line-height:1.25;letter-spacing:-.02em">신학 문답</h1>
+        </div>
+      </div>
+      <div style="display:flex;align-items:flex-end;gap:16px;flex-wrap:wrap">
+        <p style="margin:0;max-width:42ch;font-size:14px;line-height:1.75;color:var(--ink-55)">
+          질문 하나를 두고 역사 속 신학자들이 각자의 자리에서 답합니다. 실제 생성 결과가 아닌, 미리 준비된 예시 화면입니다.
+        </p>
+        <button id="themeBtn" class="hover-soft" aria-pressed="true" style="cursor:pointer;font-size:12px;color:var(--ink-70);background:transparent;border:1px solid var(--color-divider);border-radius:999px;padding:6px 14px;white-space:nowrap;transition:background .18s ease">밝게 보기</button>
+      </div>
+    </header>
+
+    <!-- BODY -->
+    <div style="display:flex;flex-wrap:wrap;gap:clamp(20px,3vw,34px);align-items:flex-start">
+
+      <!-- LEFT RAIL -->
+      <aside class="rail" style="flex:0 1 268px;min-width:250px;position:sticky;top:20px;display:flex;flex-direction:column;gap:22px">
+        <div style="display:flex;flex-direction:column;gap:11px;background:var(--color-surface);border:1px solid var(--color-divider);border-radius:20px;padding:16px 15px;box-shadow:var(--shadow-soft)">
+          <span style="font-size:10.5px;letter-spacing:.14em;font-weight:700;color:var(--ink-40)">답하는 신학자</span>
+          <div id="roster" style="display:flex;flex-direction:column;gap:9px"></div>
+        </div>
+      </aside>
+
+      <!-- MAIN -->
+      <main style="flex:1 1 520px;min-width:300px;display:flex;flex-direction:column;gap:30px">
+
+        <!-- ASK -->
+        <section style="display:flex;flex-direction:column;gap:12px">
+          <div style="display:flex;align-items:center;gap:8px;flex-wrap:wrap">
+            <span style="font-size:10.5px;letter-spacing:.14em;font-weight:700;color:var(--ink-40);margin-right:2px">갈래</span>
+            <div id="pills" style="display:flex;align-items:center;gap:8px;flex-wrap:wrap"></div>
+          </div>
+
+          <div style="background:var(--color-surface);border:1px solid var(--color-divider);border-radius:24px;padding:20px 20px 15px;box-shadow:var(--shadow-soft);display:flex;flex-direction:column;gap:12px">
+            <div style="display:flex;align-items:center;gap:9px">
+              <span id="qCatName" style="display:inline-flex;align-items:center;padding:4px 12px;border-radius:999px;font-family:var(--serif);font-weight:700;font-size:13px;background:var(--cat-tint);color:var(--cat)"></span>
+              <span style="font-size:12px;color:var(--ink-40)">에 대해 묻는 중</span>
+            </div>
+            <textarea id="draft" rows="3" placeholder="마음에 걸리는 질문을 그대로 적어 주세요" aria-label="질문 입력" style="width:100%;resize:none;font-family:var(--sans);font-size:16px;line-height:1.75;color:var(--color-text);background:transparent;border:0;outline:none;padding:2px 2px 6px"></textarea>
+            <div style="display:flex;align-items:center;gap:12px;flex-wrap:wrap;border-top:1px solid var(--color-divider);padding-top:12px">
+              <span style="font-size:11.5px;color:var(--ink-40)">Enter 로 보내기 · Shift + Enter 로 줄바꿈</span>
+              <button id="submitBtn" class="hover-op" style="margin-left:auto;cursor:pointer;font-family:var(--sans);font-weight:700;font-size:13.5px;color:var(--on-cat);background:var(--cat);border:0;border-radius:999px;padding:9px 22px;transition:opacity .18s ease">묻기</button>
+            </div>
+          </div>
+
+          <div style="display:flex;align-items:center;gap:9px;flex-wrap:wrap;padding-left:4px">
+            <span style="font-size:11.5px;color:var(--ink-40);flex:none">예시</span>
+            <button id="exampleChip" class="example-chip" style="cursor:pointer;font-size:12.5px;text-align:left;padding:6px 14px;border-radius:999px;background:transparent;color:var(--ink-70);border:1px dashed var(--color-divider)"></button>
+          </div>
+        </section>
+
+        <!-- RESULTS (JS가 채움) -->
+        <div id="results" class="hidden"></div>
+
+        <!-- FOOTER -->
+        <footer style="border-top:1px solid var(--color-divider);padding-top:18px;display:flex;flex-direction:column;gap:7px">
+          <p style="margin:0;font-size:12px;line-height:1.75;color:var(--ink-55)">
+            이 서비스는 전문적인 목회 상담이나 위기 상황에서의 도움을 대체하지 않습니다. 지금 위태로운 마음에 있다면 가까운 목회자·상담 전문가 또는 지역 위기 상담 창구에 연락해 주세요.
+          </p>
+          <p style="margin:0;font-size:11px;color:var(--ink-40)">모든 답변은 예시로 준비된 프로토타입 콘텐츠입니다.</p>
+        </footer>
+
+      </main>
+    </div>
+  </div>
+</div>
+
+<script src="assets/data.js"></script>
+<script src="assets/app.js"></script>
+</body>
+</html>
