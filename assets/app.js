@@ -73,9 +73,10 @@ function applyCat() {
   $("exampleChip").textContent = d.example;
 }
 
-/* ---- 결과 렌더 ---- */
-function renderResults(asked) {
-  const d = DATA[state.cat];
+/* ---- 결과 렌더 ----
+ * d = 답변 데이터(AI 응답 또는 예시). 갈래 이름·신학자 초상 등 고정 정보는 DATA에서 가져옵니다. */
+function renderResults(asked, d, isMock) {
+  const meta = DATA[state.cat];
   const isDoctrine = state.cat === "doctrine";
 
   const analysisSec = `
@@ -98,21 +99,24 @@ function renderResults(asked) {
         <span style="font-size:11.5px;color:var(--ink-40)">다섯 사람이 같은 질문에 차례로 답합니다</span>
       </div>
       <div style="display:flex;flex-direction:column;gap:10px">
-        ${d.panel.map(t => `
+        ${d.panel.map((t, i) => {
+          const base = meta.panel[i] || {};   // 초상·생몰년·전통은 고정 정보에서
+          return `
           <div style="background:var(--color-surface);border:1px solid var(--color-divider);border-radius:22px;box-shadow:var(--shadow-soft)">
             <div style="padding:16px 20px 18px;display:flex;gap:14px;align-items:flex-start">
-              ${avatar(t.av, 46, true)}
+              ${avatar(t.av || base.av, 46, true)}
               <div style="flex:1;display:flex;flex-direction:column;gap:7px;min-width:0">
                 <div style="display:flex;align-items:baseline;gap:8px;flex-wrap:wrap">
-                  <span style="font-family:var(--serif);font-weight:700;font-size:16.5px">${esc(t.name)}</span>
-                  <span style="font-size:10.5px;color:var(--ink-40)">${esc(t.years)}</span>
-                  <span style="font-size:10.5px;padding:2px 9px;border-radius:999px;background:var(--cat-tint);color:var(--cat)">${esc(t.tradition)}</span>
+                  <span style="font-family:var(--serif);font-weight:700;font-size:16.5px">${esc(t.name || base.name)}</span>
+                  <span style="font-size:10.5px;color:var(--ink-40)">${esc(base.years || "")}</span>
+                  <span style="font-size:10.5px;padding:2px 9px;border-radius:999px;background:var(--cat-tint);color:var(--cat)">${esc(base.tradition || "")}</span>
                 </div>
                 <p style="margin:0;font-family:var(--serif);font-size:14px;line-height:1.6;color:var(--cat)">${esc(t.summary)}</p>
                 <p style="margin:0;font-size:14.5px;line-height:1.9;color:var(--ink-70)">${esc(t.body)}</p>
               </div>
             </div>
-          </div>`).join("")}
+          </div>`;
+        }).join("")}
       </div>
       <p style="margin:0;font-size:11.5px;line-height:1.65;color:var(--ink-40)">각 답변은 해당 신학자의 사상에 근거해 재구성한 것이며, 실제 저작의 직접 인용이 아닙니다. 초상은 인물의 특징을 단순화한 일러스트입니다.</p>
     </section>`;
@@ -169,6 +173,7 @@ function renderResults(asked) {
             <span style="font-size:12.5px;line-height:1.75;color:var(--ink-55);border-top:1px solid var(--color-divider);padding-top:9px">${esc(v.note)}</span>
           </div>`).join("")}
       </div>
+      ${isMock ? "" : `<p style="margin:0;font-size:11.5px;line-height:1.65;color:var(--ink-40)">구절 본문은 AI가 생성한 것입니다. 인용이 정확한지 실제 성경에서 확인해 주세요.</p>`}
     </section>`;
 
   const figuresTitle = isDoctrine ? "질문과 관련된 성경 인물" : "비슷한 고민을 했던 성경 속 인물";
@@ -184,7 +189,7 @@ function renderResults(asked) {
         ${d.figures.map(f => `
           <div style="background:var(--color-surface);border:1px solid var(--color-divider);border-radius:22px;padding:18px 20px;display:flex;flex-direction:column;gap:11px;box-shadow:var(--shadow-soft)">
             <div style="display:flex;gap:12px;align-items:center">
-              ${avatar(f.av, 42, true)}
+              ${avatar(f.av || figureAvatar(f.name), 42, true)}
               <span style="display:flex;flex-direction:column;gap:2px;min-width:0">
                 <span style="font-family:var(--serif);font-weight:700;font-size:16px;line-height:1.3">${esc(f.name)}</span>
                 <span style="font-size:11px;color:var(--cat)">${esc(f.ref)}</span>
@@ -198,7 +203,7 @@ function renderResults(asked) {
 
   const stickyBar = `
     <div style="position:sticky;top:0;z-index:6;margin:-8px 0 -14px;padding:12px 0;background:var(--color-bg);border-bottom:1px solid var(--color-divider);display:flex;gap:10px;align-items:flex-start">
-      <span style="flex:none;margin-top:2px;font-size:10.5px;font-family:var(--serif);font-weight:700;padding:3px 10px;border-radius:999px;background:var(--cat-tint);color:var(--cat)">${esc(d.name)}</span>
+      <span style="flex:none;margin-top:2px;font-size:10.5px;font-family:var(--serif);font-weight:700;padding:3px 10px;border-radius:999px;background:var(--cat-tint);color:var(--cat)">${esc(meta.name)}</span>
       <span style="font-size:13.5px;line-height:1.6;color:var(--ink-70);display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden">${esc(asked)}</span>
     </div>`;
 
@@ -207,7 +212,12 @@ function renderResults(asked) {
       <button id="reaskBtn" class="hover-soft" style="cursor:pointer;font-size:13px;color:var(--color-text);background:transparent;border:1px solid var(--color-divider);border-radius:999px;padding:9px 18px">질문 지우고 다시 묻기</button>
     </div>`;
 
-  $("results").innerHTML = `<div style="display:flex;flex-direction:column;gap:34px">${stickyBar}${analysisSec}${panelSec}${conclusionSec}${versesSec}${figuresSec}${reask}</div>`;
+  const mockNotice = isMock ? `
+    <div style="animation:riseIn .45s both;background:var(--cat-soft);border:1px dashed var(--color-divider);border-radius:16px;padding:12px 16px;font-size:12.5px;line-height:1.7;color:var(--ink-55)">
+      지금은 <b>예시 답변</b>을 보여드리고 있습니다. 질문 내용과 무관하게 미리 준비된 내용이며, AI 연결이 준비되면 질문마다 실제 답변이 생성됩니다.
+    </div>` : "";
+
+  $("results").innerHTML = `<div style="display:flex;flex-direction:column;gap:34px">${stickyBar}${mockNotice}${analysisSec}${panelSec}${conclusionSec}${versesSec}${figuresSec}${reask}</div>`;
   $("results").classList.remove("hidden");
 
   $("reaskBtn").addEventListener("click", () => {
@@ -219,14 +229,84 @@ function renderResults(asked) {
   });
 }
 
+/* ---- 로딩 표시 ---- */
+function showLoading(asked) {
+  const meta = DATA[state.cat];
+  const bar = `
+    <div style="position:sticky;top:0;z-index:6;margin:-8px 0 -14px;padding:12px 0;background:var(--color-bg);border-bottom:1px solid var(--color-divider);display:flex;gap:10px;align-items:flex-start">
+      <span style="flex:none;margin-top:2px;font-size:10.5px;font-family:var(--serif);font-weight:700;padding:3px 10px;border-radius:999px;background:var(--cat-tint);color:var(--cat)">${esc(meta.name)}</span>
+      <span style="font-size:13.5px;line-height:1.6;color:var(--ink-70);display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden">${esc(asked)}</span>
+    </div>`;
+  const rows = meta.panel.map((p, i) => `
+    <div style="display:flex;align-items:center;gap:12px;padding:12px 0;border-top:${i ? "1px solid var(--color-divider)" : "0"}">
+      ${avatar(p.av, 34, true)}
+      <span style="font-family:var(--serif);font-size:14.5px;color:var(--ink-55)">${esc(p.name)}</span>
+      <span class="dots" style="margin-left:auto;font-size:12px;color:var(--ink-40)">생각하는 중…</span>
+    </div>`).join("");
+
+  $("results").innerHTML = `
+    <div style="display:flex;flex-direction:column;gap:34px">
+      ${bar}
+      <section style="animation:riseIn .45s both;background:var(--color-surface);border:1px solid var(--color-divider);border-radius:24px;padding:22px 24px;box-shadow:var(--shadow-soft);display:flex;flex-direction:column;gap:6px">
+        <p style="margin:0 0 6px;font-family:var(--serif);font-size:16px">다섯 사람이 질문을 읽고 있습니다</p>
+        <p style="margin:0 0 8px;font-size:12.5px;color:var(--ink-40)">답변이 모두 도착하기까지 20초쯤 걸릴 수 있습니다.</p>
+        ${rows}
+      </section>
+    </div>`;
+  $("results").classList.remove("hidden");
+}
+
+function showError(asked, message, hint) {
+  $("results").innerHTML = `
+    <div style="animation:riseIn .45s both;background:var(--color-surface);border:1px solid var(--color-divider);border-left:4px solid var(--c-life);border-radius:24px;padding:22px 24px;box-shadow:var(--shadow-soft);display:flex;flex-direction:column;gap:10px">
+      <p style="margin:0;font-family:var(--serif);font-weight:700;font-size:16px">답변을 가져오지 못했습니다</p>
+      <p style="margin:0;font-size:14px;line-height:1.8;color:var(--ink-70)">${esc(message)}</p>
+      ${hint ? `<p style="margin:0;font-size:12.5px;line-height:1.75;color:var(--ink-55)">${esc(hint)}</p>` : ""}
+      <button id="retryBtn" class="hover-soft" style="align-self:flex-start;margin-top:4px;cursor:pointer;font-size:13px;color:var(--color-text);background:transparent;border:1px solid var(--color-divider);border-radius:999px;padding:9px 18px">다시 시도</button>
+    </div>`;
+  $("results").classList.remove("hidden");
+  $("retryBtn").addEventListener("click", () => submit());
+}
+
 /* ---- 동작 ---- */
-function submit() {
-  const d = DATA[state.cat];
-  const text = ($("draft").value || "").trim() || d.example;
+async function submit() {
+  const meta = DATA[state.cat];
+  const text = ($("draft").value || "").trim() || meta.example;
   $("draft").value = text;
   state.submitted = true;
-  renderResults(text);
+
+  showLoading(text);
   $("results").scrollIntoView({ behavior: "smooth", block: "start" });
+
+  $("submitBtn").disabled = true;
+  $("submitBtn").style.opacity = ".5";
+
+  try {
+    const res = await fetch("/api/ask", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ category: state.cat, question: text })
+    });
+
+    if (!res.ok) {
+      const info = await res.json().catch(() => ({}));
+      // API 키 미설정 등 서버 준비 전이면 예시 답변으로 대체해 화면을 유지합니다.
+      if (res.status === 503) {
+        renderResults(text, meta, true);
+        return;
+      }
+      showError(text, info.error || `서버 오류 (${res.status})`, info.hint || info.detail);
+      return;
+    }
+
+    renderResults(text, await res.json(), false);
+  } catch (err) {
+    // 로컬에서 파일로 직접 열었거나 네트워크가 끊긴 경우 → 예시 답변으로 대체
+    renderResults(text, meta, true);
+  } finally {
+    $("submitBtn").disabled = false;
+    $("submitBtn").style.opacity = "";
+  }
 }
 
 function pick(k) {

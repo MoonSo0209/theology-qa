@@ -207,6 +207,48 @@ const DATA = {
   }
 };
 
+/* ---- 성경 인물 초상 매칭 ----
+ * AI가 어떤 인물을 고를지 미리 알 수 없으므로, 이름으로 찾고
+ * 없으면 이름을 해시해 항상 같은 모습이 나오도록 생성합니다. */
+const BAV_BY_NAME = {
+  "솔로몬": BAV.solomon, "욥": BAV.job, "엘리야": BAV.elijah, "레아": BAV.leah,
+  "므비보셋": BAV.mephibosheth, "삭개오": BAV.zacchaeus, "사울": BAV.saul,
+  "가룟 유다": BAV.judas, "유다": BAV.judas, "베드로": BAV.peter
+};
+
+const AV_SKINS = ["#cf9f79", "#e8c9a8", "#d8ab84", "#eccfb0", "#e6c3a1", "#c99a6f"];
+const AV_HAIRS = ["#4a443c", "#ded8cc", "#6b5b48", "#3f3a34", "#e6e0d4", "#5c4a3a"];
+const AV_ROBES = ["#7d5a8f", "#8a7a66", "#6b5540", "#b06a72", "#6d7a86", "#5f7a6a", "#9a7b4a", "#4b5361"];
+const AV_HAIRD = [
+  "M17 33 q-1-21 15-21 t15 21 q-3-13-15-13 t-15 13 Z",
+  "M17 23 q15-12 30 0 q-3 3-7 3 h-16 q-4 0-7-3 Z",
+  "M19 24 q0-20 13-20 t13 20 q-4-6-13-6 t-13 6 Z M16 22 h32 v5 h-32 Z",
+  "M12 22 q20-14 40 0 q-7 6-20 6 t-20-6 Z",
+  "M17 42 q-3-32 15-32 t15 32 q0-15-15-15 t-15 15 Z"
+];
+const AV_BEARDD = [
+  "",
+  "M21 33 q0 16 11 16 t11-16 q-5 7-11 7 t-11-7 Z",
+  "M23 33 q0 12 9 19 q9-7 9-19 q-9 7-18 0 Z"
+];
+
+function figureAvatar(name) {
+  const known = BAV_BY_NAME[String(name).trim()];
+  if (known) return known;
+  // 이름 해시 → 같은 인물은 언제나 같은 모습
+  let h = 0;
+  const s = String(name);
+  for (let i = 0; i < s.length; i++) h = (h * 31 + s.charCodeAt(i)) >>> 0;
+  const pick = (arr, salt) => arr[(h >>> salt) % arr.length];
+  return {
+    skin: pick(AV_SKINS, 0),
+    hair: pick(AV_HAIRS, 3),
+    robe: pick(AV_ROBES, 6),
+    hairD: pick(AV_HAIRD, 9),
+    beardD: pick(AV_BEARDD, 12)
+  };
+}
+
 const ORDER = ["worry", "life", "doctrine"];
 const CATVARS = {
   worry:    ["var(--c-worry)", "var(--c-worry-tint)", "var(--c-worry-soft)"],

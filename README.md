@@ -4,63 +4,76 @@
 종합 결론(교리 갈래는 "쟁점 지도"), 참고 성경 구절, 그리고 비슷한 고민을 지나간 성경 인물까지
 함께 보여 주는 웹 서비스입니다.
 
-> **현재 단계: 정적 사이트 · 예시(mock) 답변**
-> 답변은 갈래별로 미리 준비된 예시입니다. 실제 AI(Claude API) 연동은 다음 단계입니다.
+**https://theology-qa.vercel.app**
 
 ## 구조
 
 ```
 index.html          진입점 (SEO · 파비콘 · 폰트 + 화면 골격)
+api/
+  ask.js            서버리스 함수 — Gemini API 호출 (API 키는 여기서만 사용)
 assets/
   styles.css        디자인 토큰 · 스타일 (라이트/다크)
-  data.js           갈래별 콘텐츠 (신학자 · 성경 인물 · 구절) = 이후 API 응답 스키마
-  app.js            상태 · 렌더 · 이벤트 (테마 저장 포함)
+  data.js           갈래별 신학자 명단 · 초상 · 예시(폴백) 답변
+  app.js            상태 · 렌더 · API 호출
   favicon.svg
 prototype/          초기 단일 파일 프로토타입 (참고용 보존)
 ```
 
+## 동작 방식
+
+```
+브라우저 ──POST /api/ask {category, question}──▶ 서버리스 함수 ──▶ Gemini API
+        ◀── {analysis, tags, panel[], 결론, verses[], figures[]} ──┘
+```
+
+API 키는 **서버 환경변수에만** 존재하며 브라우저로 내려가지 않습니다.
+키가 설정되지 않았거나 호출에 실패하면 화면이 깨지지 않도록 **예시 답변으로 대체**되고,
+"예시 답변" 안내가 함께 표시됩니다.
+
+## 설정 — API 키 등록 (필수)
+
+1. [Google AI Studio](https://aistudio.google.com/apikey)에서 API 키 발급 (무료 등급)
+2. Vercel 프로젝트 → **Settings → Environment Variables**
+   - Key: `GEMINI_API_KEY`
+   - Value: 발급받은 키
+   - Environments: Production / Preview / Development 모두 체크
+3. **Deployments → 최신 배포 → Redeploy** (환경변수는 재배포해야 반영됩니다)
+
+키를 등록하기 전까지는 예시 답변이 표시됩니다.
+
 ## 로컬에서 보기
 
-빌드 도구가 필요 없습니다. `index.html`을 브라우저로 바로 열면 됩니다.
+`index.html`을 브라우저로 열면 화면과 흐름을 확인할 수 있습니다.
+단, 로컬에는 서버가 없으므로 **답변은 예시로 대체**됩니다.
+
+실제 AI 응답까지 로컬에서 시험하려면 Node.js 설치 후 Vercel CLI를 사용합니다.
 
 ```bash
-start "" "index.html"
+npx vercel dev
 ```
 
-폰트(Gowun Batang · Noto Sans KR)는 Google Fonts에서 불러오므로 인터넷 연결이 있으면 의도한 서체로,
-없으면 시스템 대체 서체로 표시됩니다.
+## 배포
 
-## 배포 (정적 호스팅)
+GitHub `main` 브랜치에 push하면 Vercel이 자동으로 재배포합니다.
 
-`index.html`과 `assets/` 폴더만 있으면 어떤 정적 호스팅에도 올릴 수 있습니다.
+## 설계 원칙 (변경 시 반드시 유지)
 
-- **GitHub Pages**: 저장소에 푸시 후 Settings → Pages에서 브랜치를 지정
-- **Netlify / Vercel / Cloudflare Pages**: 폴더를 드래그하거나 저장소를 연결 (빌드 명령 불필요, 배포 디렉터리 = 루트)
+이 원칙들은 `api/ask.js`의 프롬프트와 `assets/app.js`의 렌더 분기에 구현되어 있습니다.
 
-## 다음 단계 — 실제 AI 연동
-
-`app.js`의 `submit()`이 지금은 `data.js`의 예시를 읽습니다. 실제 서비스에서는 이 지점을
-백엔드 호출로 바꿉니다.
-
-```js
-// 예: submit() 내부
-const res = await fetch("/api/ask", {
-  method: "POST",
-  headers: { "Content-Type": "application/json" },
-  body: JSON.stringify({ category: state.cat, question: text })
-});
-const data = await res.json(); // data.js의 항목과 동일한 스키마
-renderResults(text, data);
-```
-
-백엔드가 돌려줄 응답 스키마는 `data.js`의 한 갈래 객체와 같습니다:
-`{ name, desc, example, analysis, tags[], panel[], (unified[] | positions[]+axes[]), verses[], figures[] }`
-
-### 연동 시 지켜야 할 원칙
-
-- **교리 갈래는 하나의 정답으로 봉합하지 않는다.** 서로 다른 전통의 답을 나란히 보이고("쟁점 지도"),
-  어느 교단도 정통으로 단정하지 않는다.
+- **교리 갈래는 하나의 정답으로 봉합하지 않는다.** 서로 다른 전통의 답을 입장별로 나란히 세우고
+  ("쟁점 지도" + "갈림의 축"), 어느 교단도 정통으로 단정하지 않는다. 동시에 양립 불가능한 주장을
+  "둘 다 맞다"로 얼버무리지도 않는다.
+- 갈래별 신학자 5인은 임의 배치가 아니라 **질문의 목적에 따라 달라지는 선정 기준**의 결과다.
+  고민 = 좋은 답변자 조합 / 삶 = 상담자 조합 / 교리 = 전통 대표성 극대화.
 - 답변은 신학자의 사상에 근거한 **재구성**이며 직접 인용이 아님을 명시한다.
-- **성경 구절 본문은 모델이 지어내지 않도록**, 참조(책·장·절)만 생성하고 실제 본문은 검증된
-  성경 데이터에서 조회한다. 사용 번역본의 저작권도 확인한다.
-- 위기 신호(자해 등) 감지 시 전문 도움을 안내한다. 이 서비스는 목회 상담을 대체하지 않는다.
+- 역사적 신학자를 현대 교파의 입장과 동일시하지 않는다.
+- **성경 구절은 AI가 지어낼 수 있다.** 현재는 프롬프트로 억제하고 UI에 확인 안내를 표시한다.
+  → *다음 개선 과제: 검증된 성경 본문 데이터에서 조회하도록 전환*
+- 위기 신호가 보이면 신학 논의보다 전문 도움 안내를 우선한다. 이 서비스는 목회 상담을 대체하지 않는다.
+
+## 알려진 한계
+
+- 성경 구절 본문의 정확성이 보장되지 않음 (위 참고)
+- Gemini 무료 등급의 호출 한도에 걸리면 429 오류가 표시됨
+- 응답 생성에 10~20초 정도 걸림
