@@ -335,13 +335,6 @@ module.exports = async function handler(req, res) {
     }
     data.panel = data.panel.map((p, i) => ({ ...p, name: expected[i].name }));
 
-    if (body.debug) {
-      data._debug = {
-        receivedQuestion: question,
-        promptTail: buildPrompt(category, question).slice(-320)
-      };
-    }
-
     res.status(200).json(data);
   } catch (err) {
     const status = err.status === 429 ? 429 : 502;
