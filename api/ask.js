@@ -41,7 +41,8 @@ const PANELS = {
     name: "교리",
     focus: "전통마다 갈리는 답을 나란히 비교",
     members: [
-      { name: "다마스쿠스의 요한", note: "동방 정교. 신화(神化), 성상, 성찬의 신비, 협력." },
+      { name: "아우구스티누스", note: "고대 라틴 교부. 동서 분열과 종교개혁 이전, 서방 고대 교회가 이 문제를 어떻게 보았는지 기준선을 제시합니다. 뒤의 서방 신학자들이 모두 그를 근거로 삼되 서로 다르게 해석했다는 점을 염두에 두십시오. 그를 '초대교회 전체의 입장'으로 말하지는 마십시오 — 동방은 원죄·예정에서 그와 갈라집니다." },
+      { name: "다마스쿠스의 요한", note: "동방 정교. 신화(神化), 성상, 성찬의 신비, 협력. 아우구스티누스와 갈라지는 지점이 있으면 분명히 드러내십시오." },
       { name: "토마스 아퀴나스", note: "가톨릭·스콜라. 은총과 자유의지, 성례, 전통과 성경." },
       { name: "마르틴 루터", note: "루터파. 이신칭의, 율법과 복음, 세례의 약속, 확신." },
       { name: "장 칼뱅", note: "개혁파. 예정, 섭리, 성도의 견인, 성경의 권위." },
@@ -51,7 +52,7 @@ const PANELS = {
 };
 
 /* ---- 응답 스키마 (구조화 출력) ---- */
-function buildSchema(isDoctrine) {
+function buildSchema(isDoctrine, panelCount) {
   const base = {
     type: "object",
     properties: {
@@ -59,7 +60,7 @@ function buildSchema(isDoctrine) {
       tags: { type: "array", items: { type: "string" }, description: "핵심 쟁점 키워드 4~5개" },
       panel: {
         type: "array",
-        description: "제시된 신학자 5명의 답변. 반드시 제시된 순서와 이름 그대로, 정확히 5개.",
+        description: `제시된 신학자 ${panelCount}명의 답변. 반드시 제시된 순서와 이름 그대로, 정확히 ${panelCount}개.`,
         items: {
           type: "object",
           properties: {
@@ -177,7 +178,7 @@ unified에 세 문단으로 종합하십시오.
 
 [질문 갈래] ${panel.name} — ${panel.focus}
 
-[답변할 신학자 5명 — 이 순서와 이름 그대로, 정확히 5명]
+[답변할 신학자 ${panel.members.length}명 — 이 순서와 이름 그대로, 정확히 ${panel.members.length}명]
 ${roster}
 
 [사용자 질문]
@@ -185,7 +186,7 @@ ${question}
 
 [신학자별 답변 규칙]
 - 각 신학자가 자기 사상에 근거해 직접 말하듯 답하되, 실제 저작을 인용하는 것처럼 꾸며내지 마십시오.
-- 다섯 답변이 서로 뚜렷이 달라야 합니다. 비슷한 말을 다르게 표현한 것에 그치면 실패입니다.
+- 답변들이 서로 뚜렷이 달라야 합니다. 비슷한 말을 다르게 표현한 것에 그치면 실패입니다.
 - 그 신학자가 실제로 주장한 내용과, 후대 교단이 그를 해석한 방식을 혼동하지 마십시오.
 - 역사적 신학자를 현대 교파의 입장과 동일시하지 마십시오.
 - 존댓말로, 질문자에게 직접 말하듯 쓰십시오.
@@ -315,7 +316,8 @@ module.exports = async function handler(req, res) {
 
   try {
     const isDoctrine = category === "doctrine";
-    const data = await callGemini(apiKey, buildPrompt(category, question), buildSchema(isDoctrine));
+    const panelCount = PANELS[category].members.length;
+    const data = await callGemini(apiKey, buildPrompt(category, question), buildSchema(isDoctrine, panelCount));
 
     // 신학자 순서·인원 검증 (프론트엔드가 순서로 초상을 매칭하므로 중요)
     const expected = PANELS[category].members;

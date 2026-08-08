@@ -96,7 +96,7 @@ function renderResults(asked, d, isMock) {
       <div style="display:flex;align-items:baseline;gap:9px;flex-wrap:wrap">
         <span style="font-family:var(--serif);font-size:17px;color:var(--cat)">②</span>
         <h2 style="margin:0;font-family:var(--serif);font-weight:700;font-size:18px">신학자별 답변</h2>
-        <span style="font-size:11.5px;color:var(--ink-40)">다섯 사람이 같은 질문에 차례로 답합니다</span>
+        <span style="font-size:11.5px;color:var(--ink-40)">${d.panel.length}명이 같은 질문에 차례로 답합니다</span>
       </div>
       <div style="display:flex;flex-direction:column;gap:10px">
         ${d.panel.map((t, i) => {
