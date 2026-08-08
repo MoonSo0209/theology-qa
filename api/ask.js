@@ -236,6 +236,166 @@ ${question}
 analysis는 위 물음을 다시 진술하는 것으로 시작하십시오.`;
 }
 
+/* ============================================================
+ * 큐티(QT) 갈래 — 다른 갈래와 구조가 완전히 다릅니다.
+ *  · 고정 패널 없음. 질문에 따라 1~3인의 견해를 AI가 선택.
+ *  · 대한예수교장로회 합동 측이 표준으로 삼는 개혁주의 전통 기준.
+ *  · 출처는 "실존 저작 안내"까지만. 직접 인용·쪽수는 금지(날조 방지).
+ * ============================================================ */
+
+const QT_SCHEMA = {
+  type: "object",
+  properties: {
+    keyVerses: {
+      type: "array",
+      description: "지정된 본문 범위 안에서 사용자의 질문과 직접 맞닿은 구절 2~4개. 질문과 상관없는 구절은 넣지 마십시오.",
+      items: {
+        type: "object",
+        properties: {
+          ref: { type: "string", description: "장:절 형식으로 한 절씩 (예: 22:1). 반드시 사용자가 지정한 본문 범위 안에 있어야 합니다." },
+          text: { type: "string", description: "그 한 절의 본문만. 확실히 아는 구절만 옮기고, 기억이 불확실하면 그 구절을 빼십시오." }
+        },
+        required: ["ref", "text"]
+      }
+    },
+    passage: {
+      type: "string",
+      description: "이 본문이 놓인 문맥 개관. 저자·수신자·앞뒤 흐름 속 위치를 3~4문장으로."
+    },
+    views: {
+      type: "array",
+      description: "질문을 해석하는 데 필요한 신학자 견해 1~3개. 억지로 3개를 채우지 말고 실제로 필요한 만큼만.",
+      items: {
+        type: "object",
+        properties: {
+          theologian: { type: "string", description: "신학자 또는 저자 이름" },
+          tradition: { type: "string", description: "그가 선 전통 (예: 한국 개혁주의, 종교개혁 개혁파, 청교도)" },
+          view: { type: "string", description: "그의 관점에서 사용자의 질문에 직접 답하는 해석. 배경 설명이 아니라 답이어야 합니다. 4~6문장." },
+          terms: {
+            type: "array",
+            description: "위 view에 나온 어려운 신학 용어와 뜻풀이. 없으면 빈 배열.",
+            items: {
+              type: "object",
+              properties: {
+                term: { type: "string", description: "view에 실제로 등장한 표기 그대로" },
+                meaning: { type: "string", description: "그 용어의 뜻을 신학 용어 없이 한두 문장으로 쉽게" }
+              },
+              required: ["term", "meaning"]
+            }
+          },
+          sources: {
+            type: "array",
+            description: "이 견해가 담긴 실존 저작. 확실하지 않으면 빈 배열로 두십시오.",
+            items: {
+              type: "object",
+              properties: {
+                work: { type: "string", description: "저작명. 실제로 존재하는 것만." },
+                kind: { type: "string", description: "성경주석 / 조직신학 / 신앙고백 / 설교집 중 하나" },
+                note: { type: "string", description: "이 저작에서 어느 부분을 찾아보면 되는지 한 문장 안내" }
+              },
+              required: ["work", "kind", "note"]
+            }
+          }
+        },
+        required: ["theologian", "tradition", "view", "terms", "sources"]
+      }
+    },
+    reflection: {
+      type: "array",
+      items: { type: "string" },
+      description: "묵상과 적용으로 넘어가도록 돕는 질문 2~3개. 설명이 아니라 질문 형태로."
+    },
+    caution: {
+      type: "string",
+      description: "이 본문을 해석할 때 흔히 빠지는 오해나 주의할 점. 없으면 빈 문자열."
+    }
+  },
+  required: ["keyVerses", "passage", "views", "reflection", "caution"]
+};
+
+function buildQtPrompt(ref, question) {
+  return `당신은 개인 큐티(경건의 시간)를 돕는 성경 연구 도우미입니다. 한국어로 답하십시오.
+사용자는 지금 D형 큐티의 '연구와 묵상' 단계에 있습니다. 설교가 아니라 본문 이해를 돕는 것이 목적입니다.
+
+[해석 기준 — 반드시 지킬 것]
+대한민국 대한예수교장로회 합동 측이 표준으로 삼는 개혁주의 신학 전통에 서서 해석하십시오.
+- 교리 표준: 웨스트민스터 신앙고백서와 대·소요리문답.
+- 성경의 무오성과 성경이 성경을 해석한다는 원칙을 전제합니다.
+- 이 전통 안에서도 해석이 갈리는 지점이 있으면 갈리는 대로 보여주되,
+  전통 밖의 해석을 주된 답으로 세우지는 마십시오.
+  (다른 전통을 언급해야 한다면 "이 전통 밖에서는 이렇게 본다"고 분명히 구분하십시오.)
+
+[신학자 선정]
+- 고정된 패널이 없습니다. 이 본문과 질문을 푸는 데 실제로 도움이 되는 사람만 고르십시오.
+- 1명으로 충분하면 1명만, 견해가 갈리면 2~3명. 억지로 채우지 마십시오.
+- 아래는 울타리가 아니라 우선순위 안내입니다. 본문에 더 적합한 사람이 있으면
+  이 목록 밖에서 골라도 됩니다. 다만 합동 측 개혁주의 전통 안에 머무십시오.
+  · 한국 개혁주의: 박윤선(주석), 박형룡(조직신학)
+  · 종교개혁·개혁파: 존 칼빈, 헤르만 바빙크, 아브라함 카이퍼
+  · 구 프린스턴: 찰스 하지, 벤저민 워필드, 게할더스 보스(성경신학)
+  · 미국 개혁파: 루이스 벌코프, 존 머레이, 윌리엄 헨드릭슨(신약 주석)
+  · 청교도: 매튜 헨리, 존 오웬, 토마스 왓슨
+- 본문의 성격에 맞는 사람을 고르십시오. 예컨대 히브리서라면 존 오웬,
+  구속사적 흐름을 묻는다면 게할더스 보스가 더 적합할 수 있습니다.
+
+[출처 규칙 — 이 갈래에서 가장 중요합니다]
+당신은 원문을 직접 확인할 수 없습니다. 그러므로:
+- 실제로 존재하는 저작만 언급하십시오. 제목·저자를 지어내지 마십시오.
+- 조금이라도 확실하지 않으면 그 저작을 빼고, sources를 빈 배열로 두십시오.
+  출처가 없는 것이 가짜 출처보다 낫습니다.
+- 쪽수를 쓰지 마십시오. 문장을 그대로 옮겼다고 표시하지 마십시오. 따옴표로 직접 인용하지 마십시오.
+- sources는 "이 견해를 확인하려면 이 자료를 보십시오"라는 안내입니다. 인용이 아닙니다.
+- note에는 그 저작에서 어느 대목을 찾아보면 되는지를 적으십시오 (예: "해당 본문 주석 부분").
+
+[용어 각주 규칙]
+견해(view)에 어려운 신학 용어가 나오면 terms에 뜻풀이를 다십시오.
+- view에 실제로 등장한 표기 그대로 term에 적으십시오(화면에서 그 자리에 각주 번호가 붙습니다).
+- 설명 없이는 이해하기 어려운 말만 고르십시오. 견해당 0~3개.
+  난이도 예시: 예표 / 모형론 / 대속 / 구속사 / 연단 / 언약 / 칭의 / 유기(遺棄).
+- 익숙한 말(믿음, 은혜, 순종, 시험, 기도 등)은 넣지 마십시오.
+- 뜻풀이는 또 다른 신학 용어로 설명하지 말고 일상 언어로 쓰십시오.
+- 어려운 용어가 없으면 빈 배열로 두십시오. 억지로 채우지 마십시오.
+- 용어를 피하려고 견해를 뭉뚱그리지는 마십시오. 정확히 쓰고 각주로 풀어 주는 편이 낫습니다.
+
+[맞닿은 구절(keyVerses) 규칙 — 중요]
+사용자가 지정한 본문 범위 안에서, 질문과 직접 관련된 구절만 2~4개 고르십시오.
+- 반드시 지정된 범위 안의 구절이어야 합니다. 범위 밖으로 나가지 마십시오.
+- text에는 그 구절의 본문을 옮기되, **확실히 아는 구절만** 넣으십시오.
+  한 글자라도 자신이 없으면 그 구절을 빼고 다른 구절을 고르십시오.
+  기억이 흐린 채로 비슷하게 지어 쓰는 것이 가장 나쁩니다.
+- 장절 번호를 지어내지 마십시오.
+- **반드시 한 절씩 따로 항목을 만드십시오.** 1절과 2절이 모두 필요하면
+  {ref:"22:1"}, {ref:"22:2"} 두 항목으로 내놓으십시오.
+  여러 절을 한 항목에 묶어 넣지 마십시오 — 화면이 연속된 절을 자동으로 이어 붙이고
+  그 자리에 절 번호를 표시하므로, 절 경계가 살아 있어야 합니다.
+- text에는 그 한 절의 본문만 넣고, 절 번호를 문장 안에 쓰지 마십시오(화면이 붙입니다).
+- 설명을 덧붙이지 마십시오. 이 항목은 구절 본문만 보여 주는 자리입니다.
+  해석은 뒤의 신학자 견해에서 다룹니다.
+- 절 단위로 세면 2~6절 정도가 적당합니다. 질문과 직접 관련된 것만 고르십시오.
+- 본문 전체를 나열하지 마십시오. 질문과 직접 관련된 것만 고르는 것이 이 항목의 목적입니다.
+
+[답변 방식]
+- 이 갈래에는 별도의 '종합 답변' 항목이 없습니다.
+- 사용자의 질문에 대한 답은 각 신학자의 view가 직접 담당합니다.
+  view를 배경 설명으로 채우지 말고, 질문에 답하는 내용으로 쓰십시오.
+- passage는 답이 아니라, 그 답을 이해하기 위한 문맥 배경입니다.
+
+[문체]
+- 존댓말. 신학 용어를 쓸 때는 곧바로 쉬운 말로 풀어 주십시오.
+- 훈계하거나 정죄하지 마십시오. 묵상하는 사람을 돕는 자리입니다.
+
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+[묵상 본문]
+${ref}
+
+[사용자의 질문 — 오직 이 물음에만 답하십시오]
+${question}
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+keyVerses는 지정된 범위 안에서 위 질문과 직접 맞닿은 구절만 고르십시오.
+passage는 위 본문의 문맥을 짚고, views는 위 질문에 직접 답하십시오.
+질문에 없는 주제로 옮겨가지 마십시오.`;
+}
+
 /* ---- Gemini 호출 ---- */
 async function callGemini(apiKey, prompt, schema) {
   const res = await fetch(ENDPOINT, {
@@ -310,7 +470,7 @@ module.exports = async function handler(req, res) {
   const category = body.category;
   const question = (body.question || "").trim();
 
-  if (!PANELS[category]) {
+  if (category !== "qt" && !PANELS[category]) {
     res.status(400).json({ error: "알 수 없는 갈래입니다." });
     return;
   }
@@ -320,6 +480,35 @@ module.exports = async function handler(req, res) {
   }
   if (question.length > 1000) {
     res.status(400).json({ error: "질문이 너무 깁니다. 1000자 이내로 적어 주세요." });
+    return;
+  }
+
+  /* ---- 큐티 갈래 (고정 패널 없음, 구조가 다름) ---- */
+  if (category === "qt") {
+    const book = (body.book || "").trim();
+    const chapter = String(body.chapter || "").trim();
+    const vFrom = String(body.verseFrom || "").trim();
+    const vTo = String(body.verseTo || "").trim();
+
+    if (!book) { res.status(400).json({ error: "본문(성경 책 이름)을 적어 주세요." }); return; }
+    if (!chapter) { res.status(400).json({ error: "장을 적어 주세요." }); return; }
+
+    let ref = `${book} ${chapter}장`;
+    if (vFrom) ref += vTo && vTo !== vFrom ? ` ${vFrom}~${vTo}절` : ` ${vFrom}절`;
+
+    try {
+      const data = await callGemini(apiKey, buildQtPrompt(ref, question), QT_SCHEMA);
+      data.reference = ref;
+      res.status(200).json(data);
+    } catch (err) {
+      const status = err.status === 429 ? 429 : 502;
+      res.status(status).json({
+        error: status === 429
+          ? "무료 사용량 한도에 도달했습니다. 잠시 후 다시 시도해 주세요."
+          : "답변을 생성하지 못했습니다.",
+        detail: err.message
+      });
+    }
     return;
   }
 

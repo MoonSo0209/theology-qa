@@ -10,6 +10,7 @@
   --ink-70: rgba(58,53,47,.72);
   --ink-55: rgba(58,53,47,.55);
   --ink-40: rgba(58,53,47,.4);
+  --c-qt:    #4a7a72; --c-qt-tint:    #e2efec; --c-qt-soft:    #f0f7f5;
   --c-worry: #6d7f52; --c-worry-tint: #eef4e2; --c-worry-soft: #f6f9ef;
   --c-life:  #b3703f; --c-life-tint:  #fbeade; --c-life-soft:  #fdf3ec;
   --c-doc:   #8a7350; --c-doc-tint:   #f2ece0; --c-doc-soft:   #f9f5ec;
@@ -17,10 +18,10 @@
   --av-bg: #f0e7d5;
   --shadow-soft: 0 1px 2px rgba(58,53,47,.05), 0 6px 18px rgba(58,53,47,.05);
 
-  /* 선택된 갈래 색 (JS가 갱신) */
-  --cat: var(--c-worry);
-  --cat-tint: var(--c-worry-tint);
-  --cat-soft: var(--c-worry-soft);
+  /* 선택된 갈래 색 (JS가 갱신) — 기본은 큐티 */
+  --cat: var(--c-qt);
+  --cat-tint: var(--c-qt-tint);
+  --cat-soft: var(--c-qt-soft);
 }
 :root.dark {
   --color-bg: #2f2b26;
@@ -31,6 +32,7 @@
   --ink-70: rgba(246,241,231,.78);
   --ink-55: rgba(246,241,231,.62);
   --ink-40: rgba(246,241,231,.46);
+  --c-qt:    #9ecfc3; --c-qt-tint:    #3a4f4a; --c-qt-soft:    #354844;
   --c-worry: #c3d3a6; --c-worry-tint: #4b5340; --c-worry-soft: #464e3c;
   --c-life:  #eeb083; --c-life-tint:  #5a4636; --c-life-soft:  #524032;
   --c-doc:   #dfcba4; --c-doc-tint:   #544a3a; --c-doc-soft:   #4d4436;
@@ -57,6 +59,17 @@ a { color: var(--c-life); }
 :focus-visible { outline: 2px solid var(--cat); outline-offset: 2px; border-radius: 6px; }
 
 .hidden { display: none !important; }
+
+/* 큐티 갈래 입력 칸 */
+.field { display: flex; flex-direction: column; gap: 6px; }
+.field label { font-size: 10.5px; letter-spacing: .14em; font-weight: 700; color: var(--ink-40); }
+.field input {
+  font-family: var(--sans); font-size: 15px; line-height: 1.7; color: var(--color-text);
+  background: transparent; border: 1px solid var(--color-divider); border-radius: 12px;
+  padding: 9px 12px; outline: none; transition: border-color .18s ease; width: 100%;
+}
+.field input:focus { border-color: var(--cat); }
+.field .num { max-width: 88px; text-align: center; }
 
 @media (max-width: 720px) {
   aside.rail { position: static !important; top: auto !important; }
