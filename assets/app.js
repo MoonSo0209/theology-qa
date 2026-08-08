@@ -425,16 +425,33 @@ function showLoading(asked) {
   $("results").classList.remove("hidden");
 }
 
-function showError(asked, message, hint) {
+function showError(asked, message, hint, retryAfter) {
+  const isDaily = retryAfter === "day";
   $("results").innerHTML = `
     <div style="animation:riseIn .45s both;background:var(--color-surface);border:1px solid var(--color-divider);border-left:4px solid var(--c-life);border-radius:24px;padding:22px 24px;box-shadow:var(--shadow-soft);display:flex;flex-direction:column;gap:10px">
       <p style="margin:0;font-family:var(--serif);font-weight:700;font-size:16px">답변을 가져오지 못했습니다</p>
       <p style="margin:0;font-size:14px;line-height:1.8;color:var(--ink-70)">${esc(message)}</p>
       ${hint ? `<p style="margin:0;font-size:12.5px;line-height:1.75;color:var(--ink-55)">${esc(hint)}</p>` : ""}
-      <button id="retryBtn" class="hover-soft" style="align-self:flex-start;margin-top:4px;cursor:pointer;font-size:13px;color:var(--color-text);background:transparent;border:1px solid var(--color-divider);border-radius:999px;padding:9px 18px">다시 시도</button>
+      ${isDaily ? "" : `<button id="retryBtn" class="hover-soft" style="align-self:flex-start;margin-top:4px;cursor:pointer;font-size:13px;color:var(--color-text);background:transparent;border:1px solid var(--color-divider);border-radius:999px;padding:9px 18px">다시 시도</button>`}
     </div>`;
   $("results").classList.remove("hidden");
-  $("retryBtn").addEventListener("click", () => submit());
+
+  const btn = $("retryBtn");
+  if (!btn) return;
+
+  // 대기 시간이 안내된 경우, 그 시간 동안 버튼을 잠가 한도를 더 소모하지 않게 합니다.
+  let left = typeof retryAfter === "number" ? retryAfter : 0;
+  if (left > 0) {
+    btn.disabled = true;
+    btn.style.opacity = ".5";
+    const tick = () => {
+      btn.textContent = left > 0 ? `다시 시도 (${left}초)` : "다시 시도";
+      if (left-- <= 0) { clearInterval(timer); btn.disabled = false; btn.style.opacity = ""; }
+    };
+    tick();
+    var timer = setInterval(tick, 1000);
+  }
+  btn.addEventListener("click", () => { if (!btn.disabled) submit(); });
 }
 
 /* ---- 동작 ---- */
@@ -492,7 +509,11 @@ async function submit() {
       const info = await res.json().catch(() => ({}));
       // API 키 미설정 등 서버 준비 전이면 예시 답변으로 대체해 화면을 유지합니다.
       if (res.status === 503) { fallback(); return; }
-      showError(asked, info.error || `서버 오류 (${res.status})`, info.hint || info.detail);
+      const wait = info.quotaKind === "day" ? "day" : (info.retryAfter || 0);
+      const hint = res.status === 429
+        ? "이 서비스는 Google Gemini의 무료 등급을 사용합니다. 짧은 시간에 여러 번 요청하면 일시적으로 제한될 수 있습니다."
+        : (info.hint || info.detail);
+      showError(asked, info.error || `서버 오류 (${res.status})`, hint, wait);
       return;
     }
 

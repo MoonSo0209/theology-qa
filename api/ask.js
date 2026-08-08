@@ -396,6 +396,41 @@ passage는 위 본문의 문맥을 짚고, views는 위 질문에 직접 답하�
 질문에 없는 주제로 옮겨가지 마십시오.`;
 }
 
+/* 429 응답에서 '어느 한도에 걸렸는지 / 얼마나 기다려야 하는지'를 뽑아냅니다.
+   Gemini는 QuotaFailure / RetryInfo 를 함께 돌려주는 경우가 많습니다. */
+function describeQuota(raw) {
+  const out = {};
+  const s = String(raw || "");
+
+  // 재시도 대기 시간 (예: "retryDelay":"32s")
+  const delay = s.match(/"retryDelay"\s*:\s*"(\d+)(?:\.\d+)?s"/);
+  if (delay) out.retryAfter = parseInt(delay[1], 10);
+
+  // 어떤 한도인지 (분당 요청 / 하루 요청 / 분당 토큰)
+  const idText = (s.match(/"quotaId"\s*:\s*"([^"]+)"/g) || []).join(" ") + " " + s;
+  if (/PerDay|per_day|RequestsPerDay/i.test(idText)) out.quotaKind = "day";
+  else if (/InputToken|TokensPerMinute|per_minute_input/i.test(idText)) out.quotaKind = "tokens";
+  else if (/PerMinute|per_minute|RequestsPerMinute/i.test(idText)) out.quotaKind = "minute";
+
+  return out;
+}
+
+function quotaMessage(err) {
+  const wait = err.retryAfter
+    ? `약 ${err.retryAfter}초 뒤에 다시 시도해 주세요.`
+    : "잠시 후 다시 시도해 주세요.";
+  switch (err.quotaKind) {
+    case "day":
+      return "오늘 사용할 수 있는 무료 한도를 모두 썼습니다. 한도는 매일 초기화되므로 내일 다시 이용해 주세요.";
+    case "tokens":
+      return `짧은 시간에 처리량이 몰렸습니다. ${wait}`;
+    case "minute":
+      return `짧은 시간에 요청이 몰렸습니다. ${wait}`;
+    default:
+      return `무료 사용량 한도에 도달했습니다. ${wait}`;
+  }
+}
+
 /* ---- Gemini 호출 ---- */
 async function callGemini(apiKey, prompt, schema) {
   const res = await fetch(ENDPOINT, {
@@ -420,7 +455,8 @@ async function callGemini(apiKey, prompt, schema) {
   if (!res.ok) {
     const err = new Error(`Gemini API ${res.status}`);
     err.status = res.status;
-    err.detail = raw.slice(0, 500);
+    err.detail = raw.slice(0, 800);
+    if (res.status === 429) Object.assign(err, describeQuota(raw));
     throw err;
   }
 
@@ -503,10 +539,10 @@ module.exports = async function handler(req, res) {
     } catch (err) {
       const status = err.status === 429 ? 429 : 502;
       res.status(status).json({
-        error: status === 429
-          ? "무료 사용량 한도에 도달했습니다. 잠시 후 다시 시도해 주세요."
-          : "답변을 생성하지 못했습니다.",
-        detail: err.message
+        error: status === 429 ? quotaMessage(err) : "답변을 생성하지 못했습니다.",
+        retryAfter: err.retryAfter || null,
+        quotaKind: err.quotaKind || null,
+        detail: status === 429 ? null : err.message
       });
     }
     return;
