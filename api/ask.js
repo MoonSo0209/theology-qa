@@ -10,7 +10,13 @@
 
 "use strict";
 
-const MODEL = "gemini-3.6-flash";
+/* 무료 등급 한도가 모델마다 크게 다릅니다 (2026-08 기준).
+ *   gemini-3.6-flash        RPM 5  / RPD 20   — 품질 우선
+ *   gemini-3.5-flash-lite   RPM 15 / RPD 500  — 물량 확보
+ * 먼저 품질 좋은 모델로 시도하고, 한도(429)에 걸리면 Lite로 자동 전환합니다.
+ * 그래야 하루 20회가 넘어가도 오류 대신 계속 답변이 나옵니다. */
+const MODEL_PRIMARY = "gemini-3.6-flash";
+const MODEL_FALLBACK = "gemini-3.5-flash-lite";
 const ENDPOINT = "https://generativelanguage.googleapis.com/v1beta/interactions";
 
 /* ---- 갈래별 신학자 패널 (순서 고정 — 프론트엔드가 이 순서로 초상을 매칭합니다) ---- */
@@ -432,7 +438,22 @@ function quotaMessage(err) {
 }
 
 /* ---- Gemini 호출 ---- */
-async function callGemini(apiKey, prompt, schema) {
+/* 품질 모델 → (한도 초과 시) 경량 모델 순으로 시도합니다. */
+async function callGeminiWithFallback(apiKey, prompt, schema) {
+  try {
+    return await callGemini(apiKey, prompt, schema, MODEL_PRIMARY);
+  } catch (err) {
+    if (err.status !== 429) throw err;
+    try {
+      return await callGemini(apiKey, prompt, schema, MODEL_FALLBACK);
+    } catch (err2) {
+      // 두 모델 모두 한도에 걸린 경우, 경량 모델 쪽 사유를 전달합니다.
+      throw err2.status === 429 ? err2 : err;
+    }
+  }
+}
+
+async function callGemini(apiKey, prompt, schema, model) {
   const res = await fetch(ENDPOINT, {
     method: "POST",
     headers: {
@@ -440,7 +461,7 @@ async function callGemini(apiKey, prompt, schema) {
       "Content-Type": "application/json"
     },
     body: JSON.stringify({
-      model: MODEL,
+      model: model,
       input: prompt,
       response_format: {
         type: "text",
@@ -533,7 +554,7 @@ module.exports = async function handler(req, res) {
     if (vFrom) ref += vTo && vTo !== vFrom ? ` ${vFrom}~${vTo}절` : ` ${vFrom}절`;
 
     try {
-      const data = await callGemini(apiKey, buildQtPrompt(ref, question), QT_SCHEMA);
+      const data = await callGeminiWithFallback(apiKey, buildQtPrompt(ref, question), QT_SCHEMA);
       data.reference = ref;
       res.status(200).json(data);
     } catch (err) {
@@ -551,7 +572,7 @@ module.exports = async function handler(req, res) {
   try {
     const isDoctrine = category === "doctrine";
     const panelCount = PANELS[category].members.length;
-    const data = await callGemini(apiKey, buildPrompt(category, question), buildSchema(isDoctrine, panelCount));
+    const data = await callGeminiWithFallback(apiKey, buildPrompt(category, question), buildSchema(isDoctrine, panelCount));
 
     // 신학자 순서·인원 검증 (프론트엔드가 순서로 초상을 매칭하므로 중요)
     const expected = PANELS[category].members;
