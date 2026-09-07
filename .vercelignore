@@ -1,0 +1,7 @@
+backups/
+prototype/
+local/
+tests/
+.claude/
+.git/
+README.md

@@ -1,138 +1,105 @@
-<!DOCTYPE html>
+<!doctype html>
 <html lang="ko">
 <head>
-<meta charset="utf-8" />
-<meta name="viewport" content="width=device-width, initial-scale=1" />
-<title>신학 문답 — 역사 속 신학자들에게 묻다</title>
-<meta name="description" content="고민 · 삶 · 교리, 세 갈래 중 하나를 고르고 질문하면 역사 속 신학자들이 각자의 자리에서 답합니다. 종합 결론과 참고 성경 구절, 비슷한 고민을 지나간 성경 인물까지 함께 보여 줍니다." />
-<meta name="theme-color" content="#f5ead8" media="(prefers-color-scheme: light)" />
-<meta name="theme-color" content="#2f2b26" media="(prefers-color-scheme: dark)" />
-
-<!-- Open Graph -->
-<meta property="og:type" content="website" />
-<meta property="og:title" content="신학 문답" />
-<meta property="og:description" content="질문 하나를 두고 역사 속 신학자들이 각자의 자리에서 답합니다." />
-<meta property="og:locale" content="ko_KR" />
-
-<link rel="icon" href="assets/favicon.svg" type="image/svg+xml" />
-<link rel="preconnect" href="https://fonts.googleapis.com" />
-<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
-<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Gowun+Batang:wght@400;700&family=Noto+Sans+KR:wght@400;500;700&display=swap" />
-<!-- ?v= 는 캐시 무효화용입니다. 자산을 고칠 때마다 숫자를 올려 주세요. -->
-<link rel="stylesheet" href="assets/styles.css?v=3" />
+<meta charset="UTF-8"><meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="description" content="큐티와 신앙의 고민, 삶과 교리에 관한 질문을 성경과 신학자의 견해로 함께 살펴봅니다."><meta name="theme-color" content="#183c34">
+<title>신학 문답 — 말씀 곁에 머무는 시간</title>
+<link rel="icon" href="assets/mark.svg" type="image/svg+xml">
+<link rel="preconnect" href="https://fonts.googleapis.com"><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Gowun+Batang:wght@400;700&family=Noto+Sans+KR:wght@400;500;600;700&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="assets/design.css">
 </head>
 <body>
-<div style="min-height:100vh;background:var(--color-bg);color:var(--color-text);padding:clamp(20px,4vw,44px) clamp(16px,4vw,40px) 90px;font-family:var(--sans);line-height:1.7">
-  <div style="max-width:1220px;margin:0 auto;display:flex;flex-direction:column;gap:30px">
-
-    <!-- HEADER -->
-    <header style="display:flex;align-items:flex-end;justify-content:space-between;gap:24px;flex-wrap:wrap;border-bottom:1px solid var(--color-divider);padding-bottom:22px">
-      <div style="display:flex;align-items:center;gap:16px">
-        <svg viewBox="0 0 64 64" style="width:54px;height:54px;flex:none" aria-hidden="true">
-          <circle cx="32" cy="32" r="30" fill="var(--cat-tint)"></circle>
-          <circle cx="32" cy="32" r="21" fill="none" stroke="var(--cat)" stroke-width="1" opacity=".45"></circle>
-          <path d="M32 13 V51 M21 26 H43" fill="none" stroke="var(--cat)" stroke-width="3" stroke-linecap="round"></path>
-        </svg>
-        <div style="display:flex;flex-direction:column;gap:9px">
-          <span style="display:inline-flex;align-items:center;gap:7px;padding:4px 12px;border-radius:999px;font-size:11px;letter-spacing:.04em;font-weight:700;background:var(--c-life-tint);color:var(--c-life);width:fit-content">
-            <span style="width:5px;height:5px;border-radius:50%;background:currentColor;display:block"></span>AI 생성 답변 · 참고용
-          </span>
-          <h1 style="margin:0;font-family:var(--serif);font-weight:700;font-size:clamp(27px,3.6vw,38px);line-height:1.25;letter-spacing:-.02em">신학 문답</h1>
-        </div>
-      </div>
-      <div style="display:flex;align-items:flex-end;gap:16px;flex-wrap:wrap">
-        <p style="margin:0;max-width:42ch;font-size:14px;line-height:1.75;color:var(--ink-55)">
-          질문 하나를 두고 역사 속 신학자들이 각자의 자리에서 답합니다. 답변은 각 신학자의 사상에 근거해 AI가 재구성한 것이며, 실제 저작의 인용이 아닙니다.
-        </p>
-        <button id="themeBtn" class="hover-soft" aria-pressed="true" style="cursor:pointer;font-size:12px;color:var(--ink-70);background:transparent;border:1px solid var(--color-divider);border-radius:999px;padding:6px 14px;white-space:nowrap;transition:background .18s ease">밝게 보기</button>
-      </div>
-    </header>
-
-    <!-- BODY -->
-    <div style="display:flex;flex-wrap:wrap;gap:clamp(20px,3vw,34px);align-items:flex-start">
-
-      <!-- LEFT RAIL -->
-      <aside class="rail" style="flex:0 1 268px;min-width:250px;position:sticky;top:20px;display:flex;flex-direction:column;gap:22px">
-        <!-- 고정 패널이 있는 갈래 -->
-        <div id="rosterCard" style="display:flex;flex-direction:column;gap:11px;background:var(--color-surface);border:1px solid var(--color-divider);border-radius:20px;padding:16px 15px;box-shadow:var(--shadow-soft)">
-          <span style="font-size:10.5px;letter-spacing:.14em;font-weight:700;color:var(--ink-40)">답하는 신학자</span>
-          <div id="roster" style="display:flex;flex-direction:column;gap:9px"></div>
-        </div>
-
-        <!-- 큐티 갈래: 고정 패널이 없으므로 해석 기준을 안내합니다 -->
-        <div id="standardCard" class="hidden" style="flex-direction:column;gap:10px;background:var(--color-surface);border:1px solid var(--color-divider);border-left:3px solid var(--cat);border-radius:0 20px 20px 0;padding:16px 18px;box-shadow:var(--shadow-soft)">
-          <span style="font-size:10.5px;letter-spacing:.14em;font-weight:700;color:var(--cat)">해석 기준</span>
-          <p style="margin:0;font-size:12.5px;line-height:1.8;color:var(--ink-55)">
-            <b style="color:var(--ink-70)">대한예수교장로회 합동</b> 측이 표준으로 삼는 개혁주의 전통에서 답합니다.
-            교리 표준은 웨스트민스터 신앙고백서와 대·소요리문답입니다.
-          </p>
-          <p style="margin:0;font-size:11.5px;line-height:1.75;color:var(--ink-40);padding-top:9px;border-top:1px dotted var(--color-divider)">
-            답하는 신학자는 고정되어 있지 않습니다. 본문과 질문에 따라 필요한 사람을 찾아 1~3인의 견해를 보여 드립니다.
-          </p>
-        </div>
-      </aside>
-
-      <!-- MAIN -->
-      <main style="flex:1 1 520px;min-width:300px;display:flex;flex-direction:column;gap:30px">
-
-        <!-- ASK -->
-        <section style="display:flex;flex-direction:column;gap:12px">
-          <div style="display:flex;align-items:center;gap:8px;flex-wrap:wrap">
-            <span style="font-size:10.5px;letter-spacing:.14em;font-weight:700;color:var(--ink-40);margin-right:2px">갈래</span>
-            <div id="pills" style="display:flex;align-items:center;gap:8px;flex-wrap:wrap"></div>
-          </div>
-
-          <div style="background:var(--color-surface);border:1px solid var(--color-divider);border-radius:24px;padding:20px 20px 15px;box-shadow:var(--shadow-soft);display:flex;flex-direction:column;gap:12px">
-            <div style="display:flex;align-items:center;gap:9px">
-              <span id="qCatName" style="display:inline-flex;align-items:center;padding:4px 12px;border-radius:999px;font-family:var(--serif);font-weight:700;font-size:13px;background:var(--cat-tint);color:var(--cat)"></span>
-              <span id="qCatSuffix" style="font-size:12px;color:var(--ink-40)">에 대해 묻는 중</span>
-            </div>
-
-            <!-- 큐티 전용: 본문 · 장 · 절 -->
-            <div id="qtFields" class="hidden" style="flex-direction:column;gap:12px">
-              <div style="display:flex;gap:12px;flex-wrap:wrap;align-items:flex-end">
-                <div class="field" style="flex:1 1 180px;min-width:150px">
-                  <label for="book">본문</label>
-                  <input id="book" list="books" placeholder="예: 창세기, 마태복음" autocomplete="off" />
-                  <datalist id="books"></datalist>
-                </div>
-                <div class="field" style="flex:none"><label for="chapter">장</label><input id="chapter" class="num" inputmode="numeric" placeholder="22" /></div>
-                <div class="field" style="flex:none"><label for="vFrom">절 (시작)</label><input id="vFrom" class="num" inputmode="numeric" placeholder="1" /></div>
-                <div class="field" style="flex:none"><label for="vTo">절 (끝)</label><input id="vTo" class="num" inputmode="numeric" placeholder="14" /></div>
-              </div>
-              <p id="refPreview" style="margin:0;font-family:var(--serif);font-size:13.5px;color:var(--cat)"></p>
-            </div>
-
-            <textarea id="draft" rows="3" placeholder="마음에 걸리는 질문을 그대로 적어 주세요" aria-label="질문 입력" style="width:100%;resize:none;font-family:var(--sans);font-size:16px;line-height:1.75;color:var(--color-text);background:transparent;border:0;outline:none;padding:2px 2px 6px"></textarea>
-            <div style="display:flex;align-items:center;gap:12px;flex-wrap:wrap;border-top:1px solid var(--color-divider);padding-top:12px">
-              <span id="sendHint" style="font-size:11.5px;color:var(--ink-40)">Enter 로 보내기 · Shift + Enter 로 줄바꿈</span>
-              <button id="submitBtn" class="hover-op" style="margin-left:auto;cursor:pointer;font-family:var(--sans);font-weight:700;font-size:13.5px;color:var(--on-cat);background:var(--cat);border:0;border-radius:999px;padding:9px 22px;transition:opacity .18s ease">묻기</button>
-            </div>
-          </div>
-
-          <div style="display:flex;align-items:center;gap:9px;flex-wrap:wrap;padding-left:4px">
-            <span style="font-size:11.5px;color:var(--ink-40);flex:none">예시</span>
-            <button id="exampleChip" class="example-chip" style="cursor:pointer;font-size:12.5px;text-align:left;padding:6px 14px;border-radius:999px;background:transparent;color:var(--ink-70);border:1px dashed var(--color-divider)"></button>
-          </div>
-        </section>
-
-        <!-- RESULTS (JS가 채움) -->
-        <div id="results" class="hidden"></div>
-
-        <!-- FOOTER -->
-        <footer style="border-top:1px solid var(--color-divider);padding-top:18px;display:flex;flex-direction:column;gap:7px">
-          <p style="margin:0;font-size:12px;line-height:1.75;color:var(--ink-55)">
-            이 서비스는 전문적인 목회 상담이나 위기 상황에서의 도움을 대체하지 않습니다. 지금 위태로운 마음에 있다면 가까운 목회자·상담 전문가 또는 지역 위기 상담 창구에 연락해 주세요.
-          </p>
-          <p style="margin:0;font-size:11px;color:var(--ink-40)">답변은 AI가 생성하므로 사실과 다를 수 있습니다. 특히 인용된 성경 구절은 실제 성경에서 확인해 주세요.</p>
-        </footer>
-
-      </main>
-    </div>
+<a class="skip" href="#question">질문 입력으로 바로 이동</a>
+<aside class="sidebar">
+  <a class="brand" href="./index.html" aria-label="신학 문답 처음으로">
+    <svg viewBox="0 0 40 40" aria-hidden="true"><path d="M6 10c5-2 10-1 14 2 4-3 9-4 14-2v23c-5-2-10-1-14 2-4-3-9-4-14-2Z M20 12v23 M20 3v7 M16.5 6.5h7" fill="none" stroke="currentColor" stroke-width="1.5"/></svg>
+    <span>신학 문답<small>THEOLOGY & LIFE</small></span>
+  </a>
+  <div class="rail-rule"></div>
+  <p class="rail-label">질문이 머무는 자리</p>
+  <nav id="categories" aria-label="질문 갈래"></nav>
+  <div class="sidebar-note" id="sidebarNote"></div>
+  <div class="sidebar-bottom">
+    <svg class="branch" viewBox="0 0 100 90" fill="none" stroke="currentColor" aria-hidden="true"><path d="M20 82Q62 53 62 7M42 63Q12 49 22 31q23 6 20 32M53 44Q83 39 83 21q-26 0-30 23M60 24Q36 17 44 3q15 4 16 21" stroke-width="1.2"/></svg>
+    <p>서두르지 않아도 좋습니다.<br>질문에서 묵상이 시작됩니다.</p>
+    <span class="rail-edition">A QUIET PLACE FOR QUESTIONS</span>
   </div>
-</div>
+</aside>
+<div class="workspace">
+  <header class="topbar">
+    <div class="breadcrumb">말씀과 일상 <span>/</span> <b id="crumb">큐티</b></div>
+    <div class="top-actions">
+      <span class="local-badge"><i></i> 디자인 미리보기</span>
+      <label class="mode-control"><span class="sr-only">답변 모드</span><select id="mode"><option value="demo">예시 답변</option><option value="live">실제 AI 답변</option></select></label>
+      <button id="themeToggle" class="icon-button" aria-label="어둡게 보기" title="어둡게 보기"></button>
+    </div>
+  </header>
+  <main id="main" class="page">
+    <section class="hero" id="hero">
+      <div class="hero-copy"><div class="eyebrow"><span></span><span id="eyebrow">DAILY DEVOTION</span></div>
+      <h1 id="heroTitle">말씀 곁에 머무는,<br><em>고요한 시간.</em></h1>
+      <p id="heroDescription">오늘 읽은 말씀에 질문을 건네 보십시오.<br>문맥과 신학자의 견해를 따라, 묵상이 한 걸음 깊어집니다.</p>
+      <div class="hero-meta" id="heroMeta"><span>D형 큐티</span><i></i><span>연구와 묵상</span></div></div>
+      <div class="hero-art" aria-hidden="true">
+        <svg viewBox="0 0 380 265" fill="none" xmlns="http://www.w3.org/2000/svg">
+        <circle cx="214" cy="110" r="94" fill="var(--art-disc)"/>
+        <circle cx="214" cy="110" r="80" stroke="var(--art-line)" stroke-dasharray="1 6" opacity=".4"/>
+        <path d="M305 204c-4-45 7-79 29-107 M317 150c-19-1-23-15-21-27 16 3 21 10 21 27 M324 127c20 3 30-9 29-23-14-2-25 6-29 23 M309 179c16 4 29-3 32-17-13-4-25 0-32 17" fill="var(--art-leaf)" stroke="var(--art-line)" stroke-width="1.2"/>
+        <ellipse cx="190" cy="227" rx="143" ry="12" fill="var(--art-shadow)"/>
+        <path d="M42 177 150 142 201 160 303 138 330 199 207 235 179 229 65 229Z" fill="var(--art-cover)" stroke="var(--art-line)" stroke-width="1.4" stroke-linejoin="round"/>
+        <path d="m41 166 104-34 55 21 98-28 29 65-120 37-25-5-116-2Z" fill="var(--art-paper)" stroke="var(--art-line)" stroke-width="1.4" stroke-linejoin="round"/>
+        <path d="M41 166c36-16 74-35 98-37 22-1 39 13 61 24 34-29 61-36 97-34l21 61c-33 4-78 14-116 39-30-19-73-21-130-9Z" fill="var(--art-paper)" stroke="var(--art-line)" stroke-width="1.5"/>
+        <path d="m200 153 2 66M45 177l26 42 111 1M49 185l21 40 115-2M207 222l115-34M208 227l117-33" stroke="var(--art-line)" opacity=".65"/>
+        <path d="m76 163 54-18m-49 29 63-19m-56 31 63-18m-56 29 48-12m69-15c22-14 38-20 65-23m-63 34c22-14 38-20 64-24m-59 35c23-14 38-19 64-23m-61 35c15-9 29-15 45-18" stroke="var(--art-line)" opacity=".36" stroke-width="1.2"/>
+        <path d="m181 146 15 7 15 75-9-4-7 7Z" fill="var(--copper)" opacity=".9"/>
+        <path d="M157 69v19m-9-10h18M262 55v9m-4-5h8M106 98v9m-4-5h8" stroke="var(--art-line)" stroke-width="1.4"/>
+        </svg>
+        <span>READ. REFLECT. GROW.</span>
+      </div>
+    </section>
 
-<script src="assets/data.js?v=3"></script>
-<script src="assets/app.js?v=3"></script>
-</body>
-</html>
+    <div class="entry-layout">
+      <div class="entry-main">
+        <form id="questionForm" class="question-card" novalidate>
+          <div class="form-heading"><div><span class="kicker" id="formKicker">오늘의 본문</span><h2 id="formTitle">어떤 말씀을 묵상하고 계십니까?</h2></div><span class="page-number">01 — 04</span></div>
+          <div id="qtFields" class="passage-fields">
+            <label class="book-field">성경<input id="book" list="books" autocomplete="off" placeholder="예: 창세기" maxlength="20"><datalist id="books"></datalist></label>
+            <label>장<div class="unit-input"><input id="chapter" type="text" inputmode="numeric" placeholder="22" maxlength="3"><span>장</span></div></label>
+            <label>시작 절<div class="unit-input"><input id="verseFrom" type="text" inputmode="numeric" placeholder="1" maxlength="3"><span>절</span></div></label>
+            <span class="range-dash">—</span>
+            <label>마지막 절<div class="unit-input"><input id="verseTo" type="text" inputmode="numeric" placeholder="14" maxlength="3"><span>절</span></div></label>
+          </div>
+          <p id="refPreview" class="reference-preview">장만 입력하시면 해당 장 전체를 살펴봅니다.</p>
+          <div id="followupContext" class="followup-context" hidden></div>
+          <div class="question-field"><label for="question" id="questionLabel">말씀을 읽으며 떠오른 질문</label><textarea id="question" rows="3" maxlength="1000" placeholder="마음에 남은 구절이나 이해하기 어려운 부분을 적어 주십시오."></textarea><span class="character-count" id="characterCount">0 / 1,000</span></div>
+          <p id="validation" role="alert" class="validation" hidden></p>
+          <div class="form-bottom"><span id="keyboardHint"><kbd>Ctrl</kbd> + <kbd>Enter</kbd>로도 보낼 수 있습니다.</span><button id="submitButton" type="submit" class="primary">함께 묵상하기 <span aria-hidden="true">↗</span></button></div>
+        </form>
+        <div class="example-row"><span>이런 질문으로 시작해 보십시오</span><button id="fillExample" type="button"></button></div>
+        <p class="mode-note" id="modeNote"><span class="status-dot"></span> 예시 모드입니다. 질문을 보내면 갈래별로 준비된 답변이 표시됩니다.</p>
+      </div>
+      <aside class="guide" id="guide" aria-label="선택한 갈래 안내"></aside>
+    </div>
+    <section class="reading-guide" id="readingGuide">
+      <div><span class="kicker">HOW TO REFLECT</span><h2>정답을 서두르기보다,<br>본문에 한 걸음 가까이.</h2></div>
+      <div class="step"><span>01</span><h3>본문을 읽습니다</h3><p>마음에 남는 말씀을 천천히<br>다시 읽어 보십시오.</p></div>
+      <div class="step"><span>02</span><h3>질문을 건넵니다</h3><p>문맥과 여러 견해를 따라<br>말씀의 뜻을 살펴봅니다.</p></div>
+      <div class="step"><span>03</span><h3>삶에 비추어 봅니다</h3><p>묵상을 위한 질문을 품고<br>나의 자리로 돌아갑니다.</p></div>
+    </section>
+    <div id="resultArea" hidden tabindex="-1">
+      <div class="reading-header"><div><span class="kicker" id="resultKicker"></span><h2 id="resultTitle"></h2><p id="resultQuestion"></p></div><button id="editQuestion" class="secondary">질문 수정 <span aria-hidden="true">↗</span></button></div>
+      <div id="conversationTrail" class="conversation-trail" hidden></div>
+      <div id="responseState" role="status" aria-live="polite"></div>
+      <div class="reading-layout"><div id="results"></div><aside class="contents" id="contents" aria-label="답변 목차"></aside></div>
+    </div>
+    <footer class="footer"><div class="footer-brand">신학 문답 <span>말씀과 일상 사이, 질문을 위한 자리.</span></div><p>답변은 사상에 근거한 재구성이며 저작의 직접 인용이 아닙니다. 성경 본문과 안내 자료는 원문과 대조해 주십시오.<br>이 서비스는 전문적인 목회 상담이나 위기 상황에서의 도움을 대체하지 않습니다.</p><div class="footer-end"><span>THEOLOGY & LIFE</span><span>THEOLOGY & LIFE · 2026</span></div></footer>
+  </main>
+</div>
+<aside id="questionDock" class="question-dock" aria-label="읽고 있는 질문 요약" hidden>
+  <div class="dock-inner"><span class="dock-icon" id="dockIcon" aria-hidden="true"></span><div class="dock-copy"><span class="dock-label" id="dockLabel"></span><p id="dockQuestion"></p></div><button id="viewFullQuestion" type="button" class="secondary">질문 전체 보기 <span aria-hidden="true">↑</span></button></div>
+</aside>
+<dialog id="modeDialog"><button class="dialog-close icon-button" id="closeDialog" aria-label="닫기">×</button><span class="kicker">실제 답변 연결</span><h2>AI 답변도 시험해 볼 수 있습니다.</h2><p>폴더 안의 <b>시작.cmd</b>를 실행해 열린 화면에서 ‘실제 AI 답변’을 선택해 주십시오.</p><p>질문은 현재 홈페이지의 AI 서버로 전송되며 기존 무료 사용량에 포함됩니다. 디자인 확인은 ‘예시 답변’만으로도 가능합니다.</p><button class="primary" id="dialogOk">확인했습니다</button></dialog>
+<noscript>이 프로토타입은 JavaScript를 켠 브라우저에서 실행됩니다.</noscript>
+<script src="assets/data.js"></script><script src="assets/conversation.js"></script><script src="assets/design.js"></script>
+</body></html>

@@ -9,6 +9,7 @@
  */
 
 "use strict";
+const {packQuestion}=require("../assets/conversation.js");
 
 /* 무료 등급 한도가 모델마다 크게 다릅니다 (2026-08 기준).
  *   gemini-3.6-flash        RPM 5  / RPD 20   — 품질 우선
@@ -525,7 +526,7 @@ module.exports = async function handler(req, res) {
 
   const body = typeof req.body === "string" ? safeParse(req.body) : (req.body || {});
   const category = body.category;
-  const question = (body.question || "").trim();
+  let question = typeof body.question === "string" ? body.question.trim() : "";
 
   if (category !== "qt" && !PANELS[category]) {
     res.status(400).json({ error: "알 수 없는 갈래입니다." });
@@ -539,6 +540,9 @@ module.exports = async function handler(req, res) {
     res.status(400).json({ error: "질문이 너무 깁니다. 1000자 이내로 적어 주세요." });
     return;
   }
+
+  try { question = packQuestion(question, body.history, category); }
+  catch (error) { res.status(400).json({error:error.message}); return; }
 
   /* ---- 큐티 갈래 (고정 패널 없음, 구조가 다름) ---- */
   if (category === "qt") {
